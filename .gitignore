@@ -1,0 +1,23 @@
+# Gradle / Build
+.gradle/
+build/
+app/build/
+
+# Android Studio / IDE
+.idea/
+*.iml
+.cxx
+.externalNativeBuild
+
+# Arquivos locais do projeto
+local.properties
+
+# Capturas de tela do Android Studio
+captures/
+
+# Arquivos gerados de APK/AAB
+*.apk
+*.aab
+
+# Sistema
+.DS_Store

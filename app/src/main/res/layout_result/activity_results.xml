@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0d1117"
+    android:padding="24dp">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <include layout="@layout/include_top_back"/>
+
+
+        <!-- Título -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SUA SELEÇÃO DE DEGUSTAÇÃO"
+            android:textColor="#F28C28"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Mensagem -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Obrigado! Aqui está o resumo dos drinks que você avaliou:"
+            android:textColor="#c9d1d9"
+            android:textSize="16sp"
+            android:layout_marginBottom="32dp" />
+
+        <!-- Container das avaliações -->
+        <LinearLayout
+            android:id="@+id/containerResults"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="32dp" />
+
+        <!-- Botão GERAR PDF -->
+        <Button
+            android:id="@+id/buttonGeneratePdf"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="GERAR PDF"
+            android:textStyle="bold"
+            android:textColor="#F28C28"
+            android:backgroundTint="#1f2933"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Botão para reiniciar -->
+        <Button
+            android:id="@+id/buttonRestart"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="NOVA DEGUSTAÇÃO"
+            android:textStyle="bold"
+            android:textColor="#F28C28"
+            android:backgroundTint="#1f2933"
+            android:layout_marginBottom="16dp"/>
+
+    </LinearLayout>
+</ScrollView>

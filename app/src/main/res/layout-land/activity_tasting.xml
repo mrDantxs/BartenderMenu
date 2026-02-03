@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:background="#0d1117"
+    android:padding="24dp">
+
+    <!-- COLUNA ESQUERDA - IMAGEM (COM MARGENS) -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1.2"
+        android:gravity="center"
+        android:padding="16dp">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#161b22"
+            android:padding="8dp">
+
+            <ImageView
+                android:id="@+id/imageViewDrink"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                android:background="#30363d"
+                android:src="@drawable/ic_drink_placeholder"
+                android:contentDescription="Foto do drink"/>
+
+        </FrameLayout>
+    </LinearLayout>
+
+    <!-- COLUNA DIREITA - CONTEÚDO -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <!-- Progresso -->
+        <TextView
+            android:id="@+id/textViewProgress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Drink 1 de 5"
+            android:textColor="#8b949e"
+            android:textSize="14sp"
+            android:alpha="0.7"
+            android:layout_marginBottom="4dp"/>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:progressTint="#58a6ff"
+            android:alpha="0.5"
+            android:layout_marginBottom="32dp"/>
+
+        <!-- Nome -->
+        <TextView
+            android:id="@+id/textViewDrinkName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#F28C28"
+            android:textSize="36sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:letterSpacing="0.05"
+            android:layout_marginBottom="24dp"/>
+
+
+        <!-- Descrição -->
+        <TextView
+            android:id="@+id/textViewDrinkDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Descrição do drink aqui..."
+            android:textColor="#c9d1d9"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:lineSpacingExtra="8sp"
+            android:background="#161b22"
+            android:padding="20dp"
+            android:layout_marginBottom="40dp"/>
+
+
+        <!-- Pergunta -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Qual sua opinião sobre este drink?"
+            android:textColor="#f0f6fc"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="24dp"/>
+
+
+        <!-- Botões -->
+        <TextView
+            android:id="@+id/buttonLike"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:text="AMEI"
+            android:gravity="center"
+            android:textSize="16sp"
+            android:textColor="@color/white"
+            android:layout_marginBottom="25dp"
+            android:background="@drawable/button_border_white_pressed"
+            android:padding="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"/> <!-- Efeito ripple -->
+
+        <TextView
+            android:id="@+id/buttonMedium"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:text="GOSTEI"
+            android:gravity="center"
+            android:textSize="16sp"
+            android:textColor="@color/white"
+            android:layout_marginBottom="25dp"
+            android:background="@drawable/button_border_white_pressed"
+            android:padding="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"/>
+
+        <TextView
+            android:id="@+id/buttonDislike"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:text="PASSO"
+            android:gravity="center"
+            android:textSize="16sp"
+            android:textColor="@color/white"
+            android:layout_marginBottom="25dp"
+            android:background="@drawable/button_border_white_pressed"
+            android:padding="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"/>
+
+
+
+        <!-- Instrução -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Escolha uma opção para continuar"
+            android:textColor="#8b949e"
+            android:textSize="14sp"
+            android:layout_marginTop="16dp"/>
+    </LinearLayout>
+
+</LinearLayout>

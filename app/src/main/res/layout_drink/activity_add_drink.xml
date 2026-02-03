@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0d1117"
+    android:padding="24dp">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <include layout="@layout/include_top_back"/>
+
+        <!-- Título -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Adicionar Novo Drink"
+            android:textColor="#F28C28"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="32dp" />
+
+        <!-- Área da Foto -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginBottom="32dp">
+
+            <ImageView
+                android:id="@+id/imageViewDrink"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:scaleType="centerCrop"
+                android:background="#30363d"
+                android:src="@drawable/ic_drink_placeholder"
+                android:contentDescription="Foto do drink" />
+
+            <Button
+                android:id="@+id/buttonTakePhoto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tirar Foto"
+                android:textColor="#ffffff"
+                android:backgroundTint="#238636"
+                android:layout_marginTop="16dp"
+                android:padding="12dp" />
+
+            <Button
+                android:id="@+id/buttonChoosePhoto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Escolher da Galeria"
+                android:textColor="#ffffff"
+                android:backgroundTint="#58a6ff"
+                android:layout_marginTop="8dp"
+                android:padding="12dp" />
+
+        </LinearLayout>
+
+        <!-- Campos do Formulário -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="32dp">
+
+            <!-- Nome do Drink -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nome do Drink:"
+                android:textColor="#c9d1d9"
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp" />
+
+            <EditText
+                android:id="@+id/editTextDrinkName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Ex: Caipirinha de Limão"
+                android:textColor="#f0f6fc"
+                android:textSize="16sp"
+                android:padding="12dp"
+                android:background="#30363d"
+                android:layout_marginBottom="24dp" />
+
+            <!-- Descrição -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Descrição:"
+                android:textColor="#c9d1d9"
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp" />
+
+            <EditText
+                android:id="@+id/editTextDescription"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:hint="Descreva o drink..."
+                android:textColor="#f0f6fc"
+                android:textSize="16sp"
+                android:padding="12dp"
+                android:background="#30363d"
+                android:gravity="top"
+                android:inputType="textMultiLine"
+                android:layout_marginBottom="24dp" />
+
+            <!-- Checkbox para seleção -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <CheckBox
+                    android:id="@+id/checkBoxSelected"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="12dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Selecionar para próxima degustação"
+                    android:textColor="#c9d1d9"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Botões de Ação -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp">
+
+            <Button
+                android:id="@+id/buttonSave"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="SALVAR"
+                android:textColor="#ffffff"
+                android:backgroundTint="#238636"
+                android:padding="16dp"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/buttonCancel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="CANCELAR"
+                android:textColor="#ffffff"
+                android:backgroundTint="#da3633"
+                android:padding="16dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

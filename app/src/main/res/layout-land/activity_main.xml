@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000">
+
+    <!-- Admin engrenagem -->
+    <ImageButton
+        android:id="@+id/btnAdmin"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="top|end"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_settings"
+        android:background="@android:color/transparent"
+        android:tint="#F28C28"
+        android:contentDescription="Admin" />
+
+    <!-- Conteúdo principal (landscape) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="24dp">
+
+        <ImageView
+            android:id="@+id/imageCocktail"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:src="@drawable/ic_cocktail"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:maxWidth="220dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/rightContainer"
+            app:layout_constraintDimensionRatio="1:1" />
+
+        <LinearLayout
+            android:id="@+id/rightContainer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            app:layout_constraintStart_toEndOf="@id/imageCocktail"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:paddingStart="24dp">
+
+
+            <Button
+                android:id="@+id/btnStartTasting"
+                android:layout_width="280dp"
+                android:layout_height="56dp"
+                android:text="DEGUSTAÇÃO"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#F28C28"
+                android:layout_marginTop="24dp"/>
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>
+

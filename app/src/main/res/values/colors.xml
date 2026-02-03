@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="white">#FFFFFF</color>
+    <color name="orange_primary">#F28C28</color>
+    <color name="orange_dark">#D17A20</color>
+    <color name="dark_bg">#0d1117</color>
+
+    <!-- Cores para os botões -->
+    <color name="button_border">#FFFFFF</color>
+    <color name="button_ripple">#40FFFFFF</color>
+</resources>

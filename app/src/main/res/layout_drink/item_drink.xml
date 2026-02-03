@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_card_selector"
+    android:padding="16dp"
+    android:layout_marginBottom="12dp"
+    android:elevation="6dp">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <!-- Checkbox -->
+        <CheckBox
+            android:id="@+id/checkBoxSelected"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:buttonTint="#F28C28" />
+
+        <!-- Info do Drink -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textViewDrinkName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nome do Drink"
+                android:textColor="#F28C28"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textViewDrinkDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Descrição do drink aqui"
+                android:textColor="#C9D1D9"
+                android:textSize="14sp"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+
+        <!-- Ações -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/btnEdit"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:src="@drawable/ic_edit"
+                android:background="@drawable/bg_icon_orange"
+                android:tint="#FFFFFF"
+                android:contentDescription="Editar" />
+
+            <ImageButton
+                android:id="@+id/btnDelete"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:src="@drawable/ic_delete"
+                android:background="@drawable/bg_icon_red"
+                android:tint="#FFFFFF"
+                android:contentDescription="Excluir" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Status -->
+    <TextView
+        android:id="@+id/textViewStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="NÃO SELECIONADO"
+        android:textColor="#FFFFFF"
+        android:textSize="11sp"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="4dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="36dp" />
+</LinearLayout>
