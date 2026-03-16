@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import com.will.bartendermenu.model.Drink;
+import com.will.bartendermenu.model.Menu;
 import java.util.ArrayList;
 import java.util.List;
 import java.io.File;
@@ -15,7 +16,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Informações do banco
     private static final String DATABASE_NAME = "bartender.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 6;
 
     // Nome da tabela
     public static final String TABLE_DRINKS = "drinks";
@@ -26,18 +27,41 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_DESCRIPTION = "description";
     public static final String COLUMN_IMAGE_PATH = "image_path";
     public static final String COLUMN_IS_SELECTED = "is_selected";
-
+    public static final String COLUMN_TASTING_ORDER = "tasting_order";
+    public static final String COLUMN_DISPLAY_ORDER = "display_order";
+    public static final String TABLE_MENUS = "menus";
+    public static final String COLUMN_MENU_ID = "menu_id";
+    public static final String COLUMN_MENU_NAME = "name";
     private static final String TAG = "DatabaseHelper";
+    public static final String TABLE_MENU_DRINK = "menu_drink";
+    public static final String COLUMN_DRINK_ID = "drink_id";
 
-    // SQL para criar a tabela
+    // SQL para criar a tabela menus
+    private static final String CREATE_TABLE_MENUS =
+            "CREATE TABLE " + TABLE_MENUS + "("
+                    + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + COLUMN_MENU_NAME + " TEXT NOT NULL"
+                    + ")";
+
+    // SQL para criar a tabela drinks
     private static final String CREATE_TABLE_DRINKS =
             "CREATE TABLE " + TABLE_DRINKS + "("
                     + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + COLUMN_NAME + " TEXT NOT NULL,"
                     + COLUMN_DESCRIPTION + " TEXT,"
                     + COLUMN_IMAGE_PATH + " TEXT,"
-                    + COLUMN_IS_SELECTED + " INTEGER DEFAULT 0"
+                    + COLUMN_IS_SELECTED + " INTEGER DEFAULT 0,"
+                    + COLUMN_MENU_ID + " INTEGER,"
+                    + COLUMN_TASTING_ORDER + " INTEGER DEFAULT NULL"
                     + ")";
+
+    private static final String CREATE_TABLE_MENU_DRINK =
+            "CREATE TABLE " + TABLE_MENU_DRINK + " (" +
+                    COLUMN_MENU_ID + " INTEGER," +
+                    COLUMN_DRINK_ID + " INTEGER," +
+                    COLUMN_DISPLAY_ORDER + " INTEGER," +
+                    "PRIMARY KEY (" + COLUMN_MENU_ID + ", " + COLUMN_DRINK_ID + ")" +
+                    ")";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -47,14 +71,33 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         Log.d(TAG, "Criando tabela drinks...");
         db.execSQL(CREATE_TABLE_DRINKS);
-        Log.d(TAG, "Tabela drinks criada com sucesso!");
+        db.execSQL(CREATE_TABLE_MENUS);
+        db.execSQL(CREATE_TABLE_MENU_DRINK);
+        Log.d(TAG, "Tabela drinks e menus criada com sucesso!");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        Log.d(TAG, "Atualizando banco de dados...");
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DRINKS);
-        onCreate(db);
+
+        // Só adiciona tasting_order se vier de versão antiga
+        if (oldVersion < 6) {
+            try {
+                db.execSQL("ALTER TABLE " + TABLE_MENU_DRINK +
+                        " ADD COLUMN " + COLUMN_DISPLAY_ORDER + " INTEGER;");
+            } catch (Exception e) {
+                Log.w(TAG, "Coluna display_order já existe.");
+            }
+        }
+
+        if (oldVersion < 5) {
+            try {
+                db.execSQL(CREATE_TABLE_MENU_DRINK);
+            } catch (Exception e) {
+                Log.w(TAG, "Tabela menu_drink já existe.");
+            }
+        }
+        // NÃO tente recriar is_selected, porque ela já existe no CREATE TABLE
+        Log.d(TAG, "Banco atualizado de versão " + oldVersion + " para " + newVersion);
     }
 
     // ============ MÉTODO addDrink ============
@@ -295,4 +338,248 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return count;
     }
+
+    public List<Drink> getSelectedDrinksForTasting() {
+        List<Drink> list = new ArrayList<>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(
+                TABLE_DRINKS,
+                null,
+                COLUMN_IS_SELECTED + " = ?",
+                new String[]{"1"},
+                null, null,
+                COLUMN_NAME + " ASC"
+        );
+
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                Drink d = new Drink();
+                d.setId(cursor.getInt(cursor.getColumnIndexOrThrow("id")));
+                d.setName(cursor.getString(cursor.getColumnIndexOrThrow("name")));
+                d.setDescription(cursor.getString(cursor.getColumnIndexOrThrow("description")));
+                d.setSelected(true);
+                d.setImagePath(cursor.getString(cursor.getColumnIndexOrThrow("image_path")));
+                list.add(d);
+            } while (cursor.moveToNext());
+
+            cursor.close();
+        }
+
+        return list;
+    }
+
+    public void clearTastingOrder() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.putNull(COLUMN_TASTING_ORDER);
+        db.update(TABLE_DRINKS, values, null, null);
+
+    }
+
+    public void updateTastingOrder(int drinkId, int order) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_TASTING_ORDER, order);
+        db.update(TABLE_DRINKS, values, COLUMN_ID + " = ?",
+                new String[]{String.valueOf(drinkId)});
+
+    }
+
+    public List<Drink> getDrinksInTastingOrder() {
+        List<Drink> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(
+                TABLE_DRINKS,
+                null,
+                COLUMN_IS_SELECTED + " = ? AND " + COLUMN_TASTING_ORDER + " IS NOT NULL",
+                new String[]{"1"},
+                null, null,
+                COLUMN_TASTING_ORDER + " ASC"
+        );
+
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                Drink d = new Drink();
+                d.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID)));
+                d.setName(cursor.getString(cursor.getColumnIndexOrThrow("name")));
+                d.setDescription(cursor.getString(cursor.getColumnIndexOrThrow("description")));
+                d.setSelected(true);
+                d.setImagePath(cursor.getString(cursor.getColumnIndexOrThrow("image_path")));
+                list.add(d);
+            } while (cursor.moveToNext());
+
+            cursor.close();
+        }
+
+        return list;
+    }
+
+    public void addDrinkToMenu(int drinkId, int menuId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(COLUMN_DRINK_ID, drinkId);
+        values.put(COLUMN_MENU_ID, menuId);
+
+        db.insertWithOnConflict(
+                TABLE_MENU_DRINK,
+                null,
+                values,
+                SQLiteDatabase.CONFLICT_IGNORE
+        );
+
+        db.close();
+    }
+
+    public void removeDrinkFromMenu(int drinkId, int menuId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.delete(
+                TABLE_MENU_DRINK,
+                COLUMN_DRINK_ID + "=? AND " + COLUMN_MENU_ID + "=?",
+                new String[]{String.valueOf(drinkId), String.valueOf(menuId)}
+        );
+
+        db.close();
+    }
+
+    public List<Drink> getDrinksByMenu(int menuId) {
+        List<Drink> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query =
+                "SELECT d.* FROM " + TABLE_DRINKS + " d " +
+                        "INNER JOIN " + TABLE_MENU_DRINK + " md " +
+                        "ON d." + COLUMN_ID + " = md." + COLUMN_DRINK_ID + " " +
+                        "WHERE md." + COLUMN_MENU_ID + " = ? " +
+                        "ORDER BY md.display_order ASC, d." + COLUMN_NAME + " ASC";
+
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(menuId)});
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                Drink d = new Drink();
+                d.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID)));
+                d.setName(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME)));
+                d.setDescription(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DESCRIPTION)));
+                d.setImagePath(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_IMAGE_PATH)));
+                d.setSelected(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_IS_SELECTED)) == 1);
+
+                list.add(d);
+            } while (cursor.moveToNext());
+
+            cursor.close();
+        }
+
+        db.close();
+        return list;
+    }
+
+    public List<Integer> getMenuIdsByDrink(int drinkId) {
+        List<Integer> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(
+                TABLE_MENU_DRINK,
+                new String[]{COLUMN_MENU_ID},
+                COLUMN_DRINK_ID + "=?",
+                new String[]{String.valueOf(drinkId)},
+                null, null, null
+        );
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                list.add(cursor.getInt(0));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+
+        db.close();
+        return list;
+    }
+
+    public long addMenu(String name) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(COLUMN_MENU_NAME, name);
+
+        long id = db.insert(TABLE_MENUS, null, values);
+        db.close();
+
+        return id;
+    }
+
+    public List<Menu> getAllMenus() {
+        List<Menu> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(
+                TABLE_MENUS,
+                null,
+                null,
+                null,
+                null,
+                null,
+                COLUMN_MENU_NAME + " ASC"
+        );
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                Menu m = new Menu();
+                m.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID)));
+                m.setName(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_MENU_NAME)));
+                list.add(m);
+            } while (cursor.moveToNext());
+
+            cursor.close();
+        }
+
+        db.close();
+        return list;
+    }
+
+    public void deleteMenu(int menuId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // remove relações primeiro
+        db.delete(TABLE_MENU_DRINK,
+                COLUMN_MENU_ID + "=?",
+                new String[]{String.valueOf(menuId)});
+
+        // remove menu
+        db.delete(TABLE_MENUS,
+                COLUMN_ID + "=?",
+                new String[]{String.valueOf(menuId)});
+
+        db.close();
+    }
+
+    public void updateMenuDrinkOrder(int menuId, int drinkId, int order) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_DISPLAY_ORDER, order);
+
+        db.update(
+                TABLE_MENU_DRINK,
+                values,
+                COLUMN_MENU_ID + "=? AND " + COLUMN_DRINK_ID + "=?",
+                new String[]{
+                        String.valueOf(menuId),
+                        String.valueOf(drinkId)
+                }
+        );
+
+        db.close();
+    }
+
+
 }

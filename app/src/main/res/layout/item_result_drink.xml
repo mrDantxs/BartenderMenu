@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="120dp"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    android:gravity="center">
+
+    <ImageView
+        android:id="@+id/imageDrink"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:scaleType="centerCrop"
+        android:background="#30363d"/>
+
+    <TextView
+        android:id="@+id/textDrinkName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#f0f6fc"
+        android:textSize="14sp"
+        android:layout_marginTop="6dp"
+        android:gravity="center"/>
+
+</LinearLayout>

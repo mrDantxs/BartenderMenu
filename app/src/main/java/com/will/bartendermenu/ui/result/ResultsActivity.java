@@ -47,12 +47,57 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.GridLayoutManager;
+
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Rect;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.net.Uri;
+import android.provider.MediaStore;
+import java.io.OutputStream;
+
 public class ResultsActivity extends AppCompatActivity {
 
+    private List<Drink> centerGrid(List<Drink> drinks) {
+
+        int columns = 4;
+        int remainder = drinks.size() % columns;
+
+        if (remainder == 0) return drinks;
+
+        int emptySlots = columns - remainder;
+        int leftPadding = emptySlots / 2;
+
+        List<Drink> newList = new ArrayList<>();
+
+        for (int i = 0; i < leftPadding; i++) {
+            newList.add(null); // espaço vazio
+        }
+
+        newList.addAll(drinks);
+
+        return newList;
+    }
+
     private DatabaseHelper dbHelper;
-    private LinearLayout containerResults;
     private Button buttonRestart;
     private Button buttonGeneratePdf;
+
+    private RecyclerView recyclerLoved;
+    private RecyclerView recyclerLiked;
+    private RecyclerView recyclerSkipped;
+
+    private ResultsDrinkAdapter adapterLoved;
+    private ResultsDrinkAdapter adapterLiked;
+    private ResultsDrinkAdapter adapterSkipped;
+
+    private List<Drink> lovedDrinks = new ArrayList<>();
+    private List<Drink> likedDrinks = new ArrayList<>();
+    private List<Drink> skippedDrinks = new ArrayList<>();
+
 
 
     // MUDANÇA: Agora guardamos tanto o drink quanto a avaliação
@@ -75,17 +120,42 @@ public class ResultsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_results);
-        setupBackButton();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestPermissions(
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    1
+            );
+        }
+
+        buttonGeneratePdf = findViewById(R.id.buttonGeneratePdf);
+        buttonRestart = findViewById(R.id.buttonRestart);
 
         dbHelper = new DatabaseHelper(this);
-        containerResults = findViewById(R.id.containerResults);
-        buttonRestart = findViewById(R.id.buttonRestart);
-        buttonGeneratePdf = findViewById(R.id.buttonGeneratePdf);
-
-        loadResults();
 
         buttonGeneratePdf.setOnClickListener(v -> askForPermission());
         buttonRestart.setOnClickListener(v -> restartApp());
+
+        RecyclerView recyclerLoved = findViewById(R.id.recyclerLoved);
+        RecyclerView recyclerLiked = findViewById(R.id.recyclerLiked);
+        RecyclerView recyclerSkipped = findViewById(R.id.recyclerSkipped);
+
+        lovedDrinks = new ArrayList<>();
+        likedDrinks = new ArrayList<>();
+        skippedDrinks = new ArrayList<>();
+
+        adapterLoved = new ResultsDrinkAdapter(this, lovedDrinks);
+        adapterLiked = new ResultsDrinkAdapter(this, likedDrinks);
+        adapterSkipped = new ResultsDrinkAdapter(this, skippedDrinks);
+
+        recyclerLoved.setLayoutManager(new GridLayoutManager(this, 4));
+        recyclerLiked.setLayoutManager(new GridLayoutManager(this, 4));
+        recyclerSkipped.setLayoutManager(new GridLayoutManager(this, 4));
+
+        recyclerLoved.setAdapter(adapterLoved);
+        recyclerLiked.setAdapter(adapterLiked);
+        recyclerSkipped.setAdapter(adapterSkipped);
+
+        loadResults();
     }
 
     private void askForPermission() {
@@ -208,24 +278,6 @@ public class ResultsActivity extends AppCompatActivity {
             return savePdfLegacy(pdfBytes, fileName);
         }
     }
-    private File savePdfLegacy(byte[] pdfBytes, String fileName) throws IOException {
-
-        File downloadsDir =
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-
-        File appDir = new File(downloadsDir, "BartenderMenu");
-        if (!appDir.exists()) appDir.mkdirs();
-
-        File pdfFile = savePdfToDownloadsQ(pdfBytes, fileName);
-
-        FileOutputStream fos = new FileOutputStream(pdfFile);
-        fos.write(pdfBytes);
-        fos.close();
-
-        return pdfFile;
-    }
-
-
 
     private void drawPdfContent(Canvas canvas) {
         Paint paint = new Paint();
@@ -263,27 +315,52 @@ public class ResultsActivity extends AppCompatActivity {
         paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
         paint.setColor(Color.BLACK);
 
+        int gosteiMuito = 0;
+        int gostoMedio = 0;
+        int naoGostei = 0;
+
         for (int i = 0; i < evaluatedDrinks.size(); i++) {
+
             DrinkWithRating drinkWithRating = evaluatedDrinks.get(i);
+            Drink drink = drinkWithRating.drink;
 
             // Número
             canvas.drawText(String.valueOf(i + 1), 50, y, paint);
 
+            // FOTO DO DRINK
+            try {
+                String imagePath = drink.getImagePath();
+
+                if (imagePath != null && !imagePath.isEmpty()) {
+
+                    Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
+
+                    if (bitmap != null) {
+
+                        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, 60, 60, false);
+
+                        Rect dest = new Rect(80, y - 40, 140, y + 20);
+                        canvas.drawBitmap(scaledBitmap, null, dest, null);
+
+                    }
+                }
+
+            } catch (Exception e) {
+                Log.e("PDF", "Erro ao carregar imagem", e);
+            }
+
             // Nome do drink
-            canvas.drawText(drinkWithRating.drink.getName(), 100, y, paint);
+            canvas.drawText(drink.getName(), 160, y, paint);
 
-            // Avaliação (com cor baseada na categoria)
+            // Avaliação com cor
             paint.setColor(getColorForRating(drinkWithRating.rating));
-            canvas.drawText(drinkWithRating.rating, 300, y, paint);
+            canvas.drawText(drinkWithRating.rating, 400, y, paint);
 
-            // Voltar cor preta para os próximos itens
             paint.setColor(Color.BLACK);
 
-            y += 20;
+            y += 70;
 
-            // Quebra de página se necessário
             if (y > 750 && i < evaluatedDrinks.size() - 1) {
-                // Aqui você poderia adicionar nova página se quiser
                 canvas.drawText("... continua na próxima página", 50, y, paint);
                 break;
             }
@@ -296,7 +373,6 @@ public class ResultsActivity extends AppCompatActivity {
         canvas.drawText("RESUMO POR CATEGORIA:", 50, y, paint);
 
         // Contar avaliações
-        int gosteiMuito = 0, gostoMedio = 0, naoGostei = 0;
         for (DrinkWithRating dwr : evaluatedDrinks) {
             switch (dwr.rating) {
                 case "AMEI": gosteiMuito++; break;
@@ -328,7 +404,7 @@ public class ResultsActivity extends AppCompatActivity {
     // Método auxiliar para pegar cor baseada na avaliação
     private int getColorForRating(String rating) {
         switch (rating) {
-            case "AMEI!": return Color.parseColor("#4CAF50");
+            case "AMEI!": return Color.parseColor("#008000");
             case "GOSTEI": return Color.parseColor("#FF9800");
             case "PASSO": return Color.parseColor("#F44336");
             default: return Color.BLACK;
@@ -336,27 +412,25 @@ public class ResultsActivity extends AppCompatActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
-    private File savePdfToDownloadsQ(byte[] pdfBytes, String fileName) throws IOException {
+    private File savePdfLegacy(byte[] pdfBytes, String fileName) throws IOException {
 
-        ContentValues values = new ContentValues();
-        values.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
-        values.put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf");
-        values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/BartenderMenu");
+        File downloadsDir =
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 
-        Uri uri = getContentResolver()
-                .insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+        File appDir = new File(downloadsDir, "BartenderMenu");
 
-        if (uri == null) {
-            throw new IOException("Falha ao criar arquivo no Downloads");
+        if (!appDir.exists()) {
+            appDir.mkdirs();
         }
 
-        try (OutputStream outputStream = getContentResolver().openOutputStream(uri)) {
-            outputStream.write(pdfBytes);
-            outputStream.flush();
-        }
+        File pdfFile = new File(appDir, fileName);
 
-        return new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOWNLOADS + "/BartenderMenu"), fileName);
+        FileOutputStream fos = new FileOutputStream(pdfFile);
+        fos.write(pdfBytes);
+        fos.flush();
+        fos.close();
+
+        return pdfFile;
     }
 
 
@@ -420,6 +494,7 @@ public class ResultsActivity extends AppCompatActivity {
 
         evaluatedDrinks.clear();
         Map<String, List<Drink>> categorizedDrinks = new HashMap<>();
+
         categorizedDrinks.put("AMEI!", new ArrayList<>());
         categorizedDrinks.put("GOSTEI", new ArrayList<>());
         categorizedDrinks.put("PASSO", new ArrayList<>());
@@ -443,10 +518,22 @@ public class ResultsActivity extends AppCompatActivity {
                 }
             }
         }
+        if (categorizedDrinks.get("AMEI!") != null)
+            lovedDrinks.addAll(categorizedDrinks.get("AMEI!"));
 
-        displayCategory("AMEI!", "⭐", categorizedDrinks.get("AMEI!"));
-        displayCategory("GOSTEI", "〰️", categorizedDrinks.get("GOSTEI"));
-        displayCategory("PASSO", "❌", categorizedDrinks.get("PASSO"));
+        if (categorizedDrinks.get("GOSTEI") != null)
+            likedDrinks.addAll(categorizedDrinks.get("GOSTEI"));
+
+        if (categorizedDrinks.get("PASSO") != null)
+            skippedDrinks.addAll(categorizedDrinks.get("PASSO"));
+
+        lovedDrinks = centerGrid(lovedDrinks);
+        likedDrinks = centerGrid(likedDrinks);
+        skippedDrinks = centerGrid(skippedDrinks);
+
+        adapterLoved.notifyDataSetChanged();
+        adapterLiked.notifyDataSetChanged();
+        adapterSkipped.notifyDataSetChanged();
     }
 
     private void showNoResults() {
@@ -456,7 +543,6 @@ public class ResultsActivity extends AppCompatActivity {
         noResults.setTextSize(16);
         noResults.setPadding(0, 24, 0, 24);
         noResults.setGravity(View.TEXT_ALIGNMENT_CENTER);
-        containerResults.addView(noResults);
     }
 
     private void displayCategory(String categoryTitle, String icon, List<Drink> drinks) {
@@ -469,7 +555,6 @@ public class ResultsActivity extends AppCompatActivity {
         categoryHeader.setTypeface(Typeface.DEFAULT_BOLD);
         categoryHeader.setPadding(32, 24, 32, 8);
         categoryHeader.setGravity(View.TEXT_ALIGNMENT_CENTER);
-        containerResults.addView(categoryHeader);
 
         for (Drink drink : drinks) {
             addDrinkItem(drink, icon, categoryTitle);
@@ -477,19 +562,14 @@ public class ResultsActivity extends AppCompatActivity {
 
         View space = new View(this);
         space.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 16));
-        containerResults.addView(space);
     }
 
     private void addDrinkItem(Drink drink, String icon, String category) {
-        View itemView = LayoutInflater.from(this).inflate(R.layout.item_result, null);
+        View itemView = LayoutInflater.from(this).inflate(R.layout.item_result_drink, null);
 
-        TextView textViewIcon = itemView.findViewById(R.id.textViewIcon);
         TextView textViewDrinkName = itemView.findViewById(R.id.textViewDrinkName);
-        TextView textViewRating = itemView.findViewById(R.id.textViewRating);
 
-        textViewIcon.setText(icon);
         textViewDrinkName.setText(drink.getName());
-        textViewRating.setText(category);
         itemView.setBackgroundColor(getBackgroundColorForCategory(category));
         textViewDrinkName.setTextColor(getColorForCategory(category));
 
@@ -499,8 +579,6 @@ public class ResultsActivity extends AppCompatActivity {
         );
         params.setMargins(16, 8, 16, 8);
         itemView.setLayoutParams(params);
-
-        containerResults.addView(itemView);
     }
 
     private int getColorForCategory(String category) {
@@ -527,5 +605,39 @@ public class ResultsActivity extends AppCompatActivity {
         if (dbHelper != null) {
             dbHelper.close();
         }
+    }
+
+    private File savePdfToDownloadsQ(byte[] pdfBytes, String fileName) throws IOException {
+
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
+        values.put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf");
+        values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/BartenderMenu");
+
+        ContentResolver resolver = getContentResolver();
+
+        Uri uri = resolver.insert(MediaStore.Files.getContentUri("external"), values);
+
+        if (uri == null) {
+            throw new IOException("Falha ao criar arquivo no MediaStore");
+        }
+
+        OutputStream outputStream = resolver.openOutputStream(uri);
+
+        if (outputStream == null) {
+            throw new IOException("Falha ao abrir OutputStream");
+        }
+
+        outputStream.write(pdfBytes);
+        outputStream.flush();
+        outputStream.close();
+
+        File tempFile = new File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), fileName);
+
+        FileOutputStream fos = new FileOutputStream(tempFile);
+        fos.write(pdfBytes);
+        fos.close();
+
+        return tempFile;
     }
 }

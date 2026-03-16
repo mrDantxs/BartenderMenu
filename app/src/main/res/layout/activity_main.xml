@@ -4,7 +4,6 @@
     android:layout_height="match_parent"
     android:background="#000000">
 
-    <!-- Botão Admin (engrenagem) no canto superior direito -->
     <ImageButton
         android:id="@+id/btnAdmin"
         android:layout_width="48dp"
@@ -16,14 +15,12 @@
         android:tint="#F28C28"
         android:contentDescription="Admin" />
 
-    <!-- Conteúdo central -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:gravity="center"
         android:padding="24dp">
-
 
     <ImageView
         android:id="@+id/imageCocktail"

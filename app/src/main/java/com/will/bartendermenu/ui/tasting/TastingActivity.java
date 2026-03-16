@@ -62,9 +62,8 @@ if (buttonLike == null) {
         // Carregar drinks selecionados para degustação
         loadDrinksForTasting();
 
-        // Verificar se há drinks para degustar
-        if (drinksToTaste.isEmpty()) {
-            Toast.makeText(this, "Nenhum drink selecionado para degustação!", Toast.LENGTH_LONG).show();
+        if (drinksToTaste == null || drinksToTaste.isEmpty()) {
+            Toast.makeText(this, "Nenhuma ordem de degustação definida", Toast.LENGTH_LONG).show();
             finish();
             return;
         }
@@ -107,17 +106,17 @@ if (buttonLike == null) {
 
     private void loadDrinksForTasting() {
         // Buscar apenas drinks marcados como selecionados
-        drinksToTaste = dbHelper.getSelectedDrinks();
+        drinksToTaste = dbHelper.getDrinksInTastingOrder();
 
-        Log.d(TAG, "Drinks para degustação: " + drinksToTaste.size());
+        Log.d(TAG, "Drinks para degustação (ORDENADOS): " + drinksToTaste.size());
 
-        // Se não houver drinks selecionados, usar todos (para teste)
+// Se não houver ordem definida, NÃO continua
         if (drinksToTaste.isEmpty()) {
-            Log.d(TAG, "Nenhum drink selecionado, usando todos os drinks");
-            drinksToTaste = dbHelper.getAllDrinks();
+            Log.e(TAG, "Nenhuma ordem de degustação encontrada!");
+            return;
         }
 
-        // Configurar barra de progresso
+// Configurar barra de progresso
         progressBar.setMax(drinksToTaste.size());
     }
 

@@ -18,6 +18,7 @@ public class DrinkAdapter extends RecyclerView.Adapter<DrinkAdapter.DrinkViewHol
 
     private List<Drink> drinkList;
     private OnDrinkClickListener listener;
+    private android.content.Context context;
 
     public interface OnDrinkClickListener {
         void onEditClick(int position);
@@ -25,9 +26,12 @@ public class DrinkAdapter extends RecyclerView.Adapter<DrinkAdapter.DrinkViewHol
         void onSelectionChanged(int position, boolean isSelected);
     }
 
-    public DrinkAdapter(List<Drink> drinkList, OnDrinkClickListener listener) {
+    public DrinkAdapter(List<Drink> drinkList,
+                        OnDrinkClickListener listener,
+                        android.content.Context context) {
         this.drinkList = drinkList;
         this.listener = listener;
+        this.context = context;
     }
 
     @NonNull
@@ -41,9 +45,17 @@ public class DrinkAdapter extends RecyclerView.Adapter<DrinkAdapter.DrinkViewHol
     @Override
     public void onBindViewHolder(@NonNull DrinkViewHolder holder, int position) {
         Drink drink = drinkList.get(position);
-        holder.bind(drink, position);
-    }
 
+        holder.bind(drink);
+
+        // 🔥 botão de cardápios
+        holder.btnMenus.setOnClickListener(v -> {
+            if (context instanceof DrinkListActivity) {
+                ((DrinkListActivity) context)
+                        .openMenuSelectionDialog(drink.getId());
+            }
+        });
+    }
     @Override
     public int getItemCount() {
         return drinkList.size();
@@ -57,6 +69,7 @@ public class DrinkAdapter extends RecyclerView.Adapter<DrinkAdapter.DrinkViewHol
         private TextView textViewStatus;
         private ImageButton btnEdit;
         private ImageButton btnDelete;
+        private ImageButton btnMenus;
         private OnDrinkClickListener listener;
 
         public DrinkViewHolder(@NonNull View itemView, OnDrinkClickListener listener) {
@@ -70,9 +83,10 @@ public class DrinkAdapter extends RecyclerView.Adapter<DrinkAdapter.DrinkViewHol
             textViewStatus = itemView.findViewById(R.id.textViewStatus);
             btnEdit = itemView.findViewById(R.id.btnEdit);
             btnDelete = itemView.findViewById(R.id.btnDelete);
+            btnMenus = itemView.findViewById(R.id.btnMenus);
         }
 
-        public void bind(Drink drink, int position) {
+        public void bind(Drink drink) {
             // Configurar textos
             textViewDrinkName.setText(drink.getName());
             textViewDrinkDescription.setText(drink.getDescription());
@@ -82,34 +96,47 @@ public class DrinkAdapter extends RecyclerView.Adapter<DrinkAdapter.DrinkViewHol
             checkBoxSelected.setChecked(drink.isSelected());
 
             // Configurar status
-            if (drink.isSelected()) {
-                textViewStatus.setText("SELECIONADO");
-                textViewStatus.setBackgroundColor(0xFF4CAF50); // Verde
-            } else {
-                textViewStatus.setText("NÃO SELECIONADO");
-                textViewStatus.setBackgroundColor(0xFFF44336); // Vermelho
-            }
+            updateStatusUI(drink.isSelected());
 
             // Configurar listener do botão EDITAR
             btnEdit.setOnClickListener(v -> {
-                if (listener != null) {
-                    listener.onEditClick(position);
+                int pos = getAdapterPosition();
+
+                if (listener != null && pos != RecyclerView.NO_POSITION) {
+                    listener.onEditClick(pos);
                 }
             });
 
             // Configurar listener do botão EXCLUIR
             btnDelete.setOnClickListener(v -> {
                 if (listener != null) {
-                    listener.onDeleteClick(position);
+                    int pos = getAdapterPosition();
+
+                    if (listener != null && pos != RecyclerView.NO_POSITION) {
+                        listener.onDeleteClick(pos);
+                    }
+
                 }
             });
 
             // Configurar listener do checkbox
             checkBoxSelected.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 if (listener != null) {
-                    listener.onSelectionChanged(position, isChecked);
+                    int pos = getAdapterPosition();
+                    if (pos != RecyclerView.NO_POSITION) {
+                        listener.onSelectionChanged(pos, isChecked);
+                    }
                 }
             });
+        }
+        private void updateStatusUI(boolean selected) {
+            if (selected) {
+                textViewStatus.setText("SELECIONADO");
+                textViewStatus.setBackgroundColor(0xFF4CAF50);
+            } else {
+                textViewStatus.setText("NÃO SELECIONADO");
+                textViewStatus.setBackgroundColor(0xFFF44336);
+            }
         }
     }
 }

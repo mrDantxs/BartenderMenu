@@ -6,6 +6,7 @@ public class Drink {
     private String description;
     private String imagePath; // Caminho onde a foto está salva
     private boolean isSelected; // Se foi selecionado para a próxima degustação
+    private int menuId;
 
     // Construtores
     public Drink() {

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- PAINEL ESQUERDO -->
+    <LinearLayout
+        android:id="@+id/leftPanelMenus"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:padding="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/recyclerViewMenus"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintWidth_percent="0.4">
+
+        <EditText
+            android:id="@+id/edtMenuName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nome do cardápio"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#888888"/>
+
+        <Button
+            android:id="@+id/btnAddMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Adicionar Cardápio"
+            android:layout_marginTop="8dp"/>
+
+    </LinearLayout>
+
+    <!-- LISTA DIREITA -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewMenus"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="8dp"
+        app:layout_constraintStart_toEndOf="@id/leftPanelMenus"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

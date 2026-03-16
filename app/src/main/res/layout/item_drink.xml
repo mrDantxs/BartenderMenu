@@ -58,6 +58,16 @@
             android:orientation="horizontal">
 
             <ImageButton
+                android:id="@+id/btnMenus"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:layout_marginStart="6dp"
+                android:src="@drawable/ic_menu_book"
+                android:background="@drawable/bg_icon_orange"
+                android:tint="#FFFFFF"
+                android:contentDescription="Menus" />
+
+            <ImageButton
                 android:id="@+id/btnEdit"
                 android:layout_width="42dp"
                 android:layout_height="42dp"
