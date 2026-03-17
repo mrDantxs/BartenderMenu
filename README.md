@@ -35,6 +35,5 @@ O código está organizado em pacotes por responsabilidade:
 - Registrar evolução no LinkedIn
 - Melhorar UI/UX
 - Melhorar a documentação técnica
-- Feature para reoordenar os drinks 
 - Feature adicionar campos de observações
 
